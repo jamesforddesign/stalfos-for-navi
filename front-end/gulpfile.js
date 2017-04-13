@@ -35,16 +35,21 @@ var SVG_PATH = 'svg',
 	IMAGE_PATH = 'images',
 	SVG_SYMBOL_PATH = IMAGE_PATH + '/icons',
 	FONT_PATH = 'fonts',
-	WEB_PATH = '.public',
+	WEB_PATH = 'assets/.tmp', 
 	WEB_CSS_PATH = WEB_PATH + '/css',
 	WEB_SCRIPT_PATH = WEB_PATH + '/scripts',
 	WEB_IMAGE_PATH = WEB_PATH + '/images',
 	WEB_FONT_PATH = WEB_PATH + '/fonts',
-	WEBSITE_PATH = '../htdocs',
+	WEBSITE_PATH = '../../website',
 	WEBSITE_CSS_PATH = WEBSITE_PATH + '/css',
 	WEBSITE_SCRIPT_PATH = WEBSITE_PATH + '/scripts',
 	WEBSITE_IMAGE_PATH = WEBSITE_PATH + '/images',
 	WEBSITE_FONT_PATH = WEBSITE_PATH + '/fonts',
+	COMPONENT_LIB_PATH = 'assets',
+	COMPONENT_LIB_CSS_PATH = COMPONENT_LIB_PATH + '/css',
+	COMPONENT_LIB_SCRIPT_PATH = COMPONENT_LIB_PATH + '/scripts',
+	COMPONENT_LIB_IMAGE_PATH = COMPONENT_LIB_PATH + '/images',
+	COMPONENT_LIB_FONT_PATH = COMPONENT_LIB_PATH + '/fonts',
 	DATA_FILE = 'data.json';
 
 /*------------------------------------*\
@@ -149,22 +154,35 @@ gulp.task('process-fonts', function() {
 				.pipe(gulp.dest(WEB_PATH + '/fonts'));
 });
 
-// Webserver
-gulp.task('webserver', function() {
-
-	connect.server({
-		root: WEB_PATH,
-		port: 8003,
-		livereload: true
-	});
-
-});
-
 // Live reload
 gulp.task('livereload', function () {
 
 	return gulp.src( WEB_PATH + '/**/*' )
 		.pipe(connect.reload());
+});
+
+// Copy assets from the WEB_PATH to the set website asset paths
+gulp.task('component-assets', function() {
+
+	// Image files
+	var componentImages = gulp.src([IMAGE_PATH + '/**/*'])
+							.pipe(gulp.dest(COMPONENT_LIB_IMAGE_PATH));
+
+	// CSS files
+	var componentCSS = gulp.src([WEB_PATH + '/css/**/*'])
+							.pipe(gulp.dest(COMPONENT_LIB_CSS_PATH));
+
+	// Script files
+	var componentScripts = gulp.src([WEB_PATH + '/scripts/**/*'])
+							.pipe(gulp.dest(COMPONENT_LIB_SCRIPT_PATH));
+
+	// Font files
+	var componentFonts = gulp.src([WEB_PATH + '/fonts/**/*'])
+							.pipe(gulp.dest(COMPONENT_LIB_FONT_PATH));
+
+	// Merge the mini tasks
+	return merge(componentImages, componentCSS, componentScripts, componentFonts);
+
 });
 
 // Copy assets from the WEB_PATH to the set website asset paths
@@ -191,15 +209,14 @@ gulp.task('website-assets', function() {
 
 });
 
-
 // Process and watch all assets for the component library
 gulp.task('components', function() {
 
 	// Run build then set watch targets in the callback
-	runSequence('clean-web', 'process-svg', 'clean-svg-output-mess', 'process-templates', 'process-sass', 'process-scripts', 'process-images', 'process-fonts', 'component-assets', function() {
+	runSequence('clean-web', 'process-svg', 'process-templates', 'process-sass', 'process-scripts', 'process-images', 'process-fonts', 'component-assets', function() {
 
 		// Watch for changes with SVG
-		watch([SVG_PATH + '/*.svg'], function() { runSequence('process-svg', 'clean-svg-output-mess', function() { gulp.start('component-assets'); }); });
+		watch([SVG_PATH + '/*.svg'], function() { runSequence('process-svg', function() { gulp.start('component-assets'); }); });
 
 		// Watch for changes with sass
 		watch([SCSS_ROOT_PATH + '/**/*.scss'], function() { runSequence('process-sass', function() { gulp.start('component-assets'); }); });
