@@ -1,3 +1,18 @@
+## Important
+
+This is a custom forked version of [Stalfos](https://github.com/hankchizljaw/stalfos). To update from the core repo you must do the following.
+
+1) Add the parent stalfos as an upstream remote with: `git remote add upstream https://github.com/hankchizljaw/stalfos.git`
+2) Take a backup of `readme.md`, `front-end/gulpfile.js` and `front-end/data.json`
+3) Run `git checkout master`
+4) Run `git fetch upstream`
+5) Run `git merge upstream/master`
+
+There will be conflicts. They should be limited to the files outlined in point 2. Apply those backups and commit. 
+
+The repo should now be in sync with [Stalfos](https://github.com/hankchizljaw/stalfos).
+
+
 ## About
 
 Stalfos is an open-source, skeletal front-end development starter kit. It provides you with a solid starting-point for working with HTML, Sass and JavaScript. It also provides tools for working with images, fonts and SVG.
